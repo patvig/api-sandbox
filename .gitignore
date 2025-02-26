@@ -15,3 +15,5 @@
 /.dockerignore
 /Dockerfile
 .vscode/settings.json
+config/cert/cert.pem
+config/cert/key.pem
