@@ -1,11 +1,11 @@
 {
-    "api-platform/symfony": {
+    "api-platform/core": {
         "version": "4.0",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
             "version": "4.0",
-            "ref": "e9952e9f393c2d048f10a78f272cd35e807d972b"
+            "ref": "cb9e6b8ceb9b62f32d41fc8ad72a25d5bd674c6d"
         },
         "files": [
             "./config/packages/api_platform.yaml",
@@ -218,15 +218,6 @@
             "./templates/base.html.twig"
         ]
     },
-    "symfony/uid": {
-        "version": "7.2",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "7.0",
-            "ref": "0df5844274d871b37fc3816c57a768ffc60a43a5"
-        }
-    },
     "symfony/validator": {
         "version": "7.2",
         "recipe": {
@@ -237,6 +228,18 @@
         },
         "files": [
             "./config/packages/validator.yaml"
+        ]
+    },
+    "zenstruck/foundry": {
+        "version": "2.3",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "2.0",
+            "ref": "56bc588a1b6d5d218319f70c64c2f0fbebe30ec7"
+        },
+        "files": [
+            "./config/packages/zenstruck_foundry.yaml"
         ]
     }
 }

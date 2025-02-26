@@ -86,7 +86,10 @@
         }
     },
     "require-dev": {
+        "api-platform/doctrine-orm": "*",
+        "api-platform/symfony": "*",
         "doctrine/doctrine-fixtures-bundle": "^3.7.1",
-        "symfony/maker-bundle": "^1.62.1"
+        "symfony/maker-bundle": "^1.62.1",
+        "zenstruck/foundry": "^2.3"
     }
 }
