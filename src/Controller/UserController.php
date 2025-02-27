@@ -8,14 +8,23 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Exception;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 use App\Entity\User;
+use App\Repository\UserRepository;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Doctrine\Persistence\ManagerRegistry;
 
 class UserController extends AbstractController
 {
+    private $userRepository;
+
+    public function __construct(UserRepository $userRepository)
+    {
+        $this->userRepository = $userRepository;
+    }
 
     #[Route('/api/register', name: 'api_register', methods: ['POST'])]
     public function register(
@@ -62,12 +71,34 @@ class UserController extends AbstractController
             return $this->json([
                 'message' => 'missing credentials',
             ], Response::HTTP_UNAUTHORIZED);
-        }      
-        
+        }
+
         return $this->json([
-             'id'  => $user->getId(),
-             'email'  => $user->getUserIdentifier(),
-             'username' => $user->getUsername()
+            'id'  => $user->getId(),
+            'email'  => $user->getUserIdentifier(),
+            'username' => $user->getUsername()
         ]);
+    }
+
+    #[Route('/api/resetpassword', name: 'resetPassword', methods: 'post')]
+    public function resetPassword(ManagerRegistry $doctrine, Request $request, UserPasswordHasherInterface $passwordHasher): JsonResponse
+    {
+        $em = $doctrine->getManager();
+        $decoded = json_decode($request->getContent());
+        $email = $decoded->email;
+
+        try {
+            $user = $this->userRepository->findByEmail($email);
+            if (empty($user)) {
+                return $this->json(
+                    ['message' => 'Email inconnu'],
+                    Response::HTTP_NOT_FOUND
+                );
+            }
+
+            return $this->json(['message' => 'Lien de réinitialisation envoyé']);
+        } catch (Exception $e) {
+            return $this->json(['message' => "Erreur lors de la création du compte : " . $e->getMessage()], 500);
+        }
     }
 }
