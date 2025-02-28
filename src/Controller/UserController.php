@@ -8,10 +8,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Mime\Address;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Exception;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Security\Csrf\TokenGenerator\TokenGeneratorInterface;
 
+use App\Service\MailService;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
@@ -80,9 +84,13 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/api/resetpassword', name: 'resetPassword', methods: 'post')]
-    public function resetPassword(ManagerRegistry $doctrine, Request $request, UserPasswordHasherInterface $passwordHasher): JsonResponse
-    {
+    #[Route('/api/requestResetPassword', name: 'requestResetPassword', methods: 'post')]
+    public function requestResetPassword(
+        ManagerRegistry $doctrine,
+        Request $request,
+        TokenGeneratorInterface $tokenGenerator,
+        MailService $mailService,
+    ): JsonResponse {
         $em = $doctrine->getManager();
         $decoded = json_decode($request->getContent());
         $email = $decoded->email;
@@ -96,9 +104,66 @@ class UserController extends AbstractController
                 );
             }
 
+            // Générer un token sécurisé
+            $token = $tokenGenerator->generateToken();
+            $user->setResetToken($token);
+            $em->flush();
+
+            // Envoyer un email avec le lien de réinitialisation
+            $email = (new TemplatedEmail())
+                ->from(new Address('email@domain'))
+                ->subject("Demande de réinitialisation de mot de passe")
+                ->to($user->getEmail())
+                ->htmlTemplate('emails/reset_password.html.twig')
+                ->context([
+                    'resetToken' => $token,
+                    'resetUrl' => 'http://localhost:4200/resetpassword/' . $token . '/' . $email
+                ]);
+
+            $mailService->sendEmail($email);
+
             return $this->json(['message' => 'Lien de réinitialisation envoyé']);
         } catch (Exception $e) {
-            return $this->json(['message' => "Erreur lors de la création du compte : " . $e->getMessage()], 500);
+            return $this->json(['message' => "Erreur lors de la demande : " . $e->getMessage()], 500);
+        }
+    }
+
+    #[Route('/api/resetpassword', name: 'resetPassword', methods: 'post')]
+    public function resetPassword(
+        ManagerRegistry $doctrine,
+        Request $request,
+        UserPasswordHasherInterface $passwordHasher,
+    ): JsonResponse {
+        $em = $doctrine->getManager();
+        $decoded = json_decode($request->getContent());
+        $password = $decoded->password;
+        $token = $decoded->token;
+        $email = $decoded->email;
+
+        try {
+            $user = $this->userRepository->findByEmail($email);
+            if (empty($user)) {
+                return $this->json(
+                    ['message' => 'Uitilisateur inconnu'],
+                    Response::HTTP_NOT_FOUND
+                );
+            }
+
+            if ($user->getResetToken() != $token) {
+                return $this->json(
+                    ['message' => 'token invalide'],
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+
+            $user->setResetToken(null);
+            $hashedPassword = $passwordHasher->hashPassword($user, $password);
+            $user->setPassword($hashedPassword);
+            $em->flush();
+
+            return $this->json(['message' => 'Mot de passe mis à jour']);
+        } catch (Exception $e) {
+            return $this->json(['message' => "Erreur lors du changement de mot de passe : " . $e->getMessage()], 500);
         }
     }
 }
