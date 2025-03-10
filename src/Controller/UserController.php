@@ -111,7 +111,7 @@ class UserController extends AbstractController
 
             // Envoyer un email avec le lien de réinitialisation
             $email = (new TemplatedEmail())
-                ->from(new Address('email@domain'))
+                ->from(new Address('patrice.vigouroux@abpost.fr'))
                 ->subject("Demande de réinitialisation de mot de passe")
                 ->to($user->getEmail())
                 ->htmlTemplate('emails/reset_password.html.twig')

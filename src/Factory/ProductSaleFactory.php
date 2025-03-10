@@ -2,13 +2,13 @@
 
 namespace App\Factory;
 
-use App\Entity\Product;
+use App\Entity\ProductSale;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<Product>
+ * @extends PersistentProxyObjectFactory<ProductSale>
  */
-final class ProductFactory extends PersistentProxyObjectFactory
+final class ProductSaleFactory extends PersistentProxyObjectFactory
 {
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
@@ -21,7 +21,7 @@ final class ProductFactory extends PersistentProxyObjectFactory
 
     public static function class(): string
     {
-        return Product::class;
+        return ProductSale::class;
     }
 
     /**
@@ -32,9 +32,9 @@ final class ProductFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'category' => ProductCategoryFactory::new(),
-            'name' => self::faker()->text(30),
-            'type' => ProductTypeFactory::new(),
+            'quantity' => self::faker()->numberBetween(1, 20),
+            'product' => ProductFactory::new(),
+            'prixHT' => self::faker()->randomFloat(2, 1, 1000)
         ];
     }
 
@@ -44,7 +44,7 @@ final class ProductFactory extends PersistentProxyObjectFactory
     protected function initialize(): static
     {
         return $this
-            // ->afterInstantiate(function(Product $product): void {})
+            // ->afterInstantiate(function(ProductSale $ProductSale): void {})
         ;
     }
 }

@@ -5,8 +5,9 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
+use App\Repository\ProductAttributeRepository;
 
-#[ORM\Entity(repositoryClass: 'App\Repository\ProductAttributeRepository')]
+#[ORM\Entity(repositoryClass: ProductAttributeRepository::class)]
 #[ApiResource]
 class ProductAttribute
 {
@@ -21,7 +22,7 @@ class ProductAttribute
     #[ORM\Column(type: 'string', length: 255)]
     private string $value;
 
-    #[ORM\ManyToOne(targetEntity: 'App\Entity\Product', inversedBy: 'attributes')]
+    #[ORM\ManyToOne(targetEntity: Product::class, cascade: ['persist'], inversedBy: 'attributes')]
     #[ORM\JoinColumn(nullable: false)]
     private Product $product;
 

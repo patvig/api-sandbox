@@ -7,8 +7,9 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Metadata\ApiResource;
+use App\Repository\ProductCategoryRepository;
 
-#[ORM\Entity(repositoryClass: 'App\Repository\ProductCategoryRepository')]
+#[ORM\Entity(repositoryClass: ProductCategoryRepository::class)]
 #[ApiResource]
 class ProductCategory
 {

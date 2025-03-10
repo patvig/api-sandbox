@@ -16,5 +16,11 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
-    // Ajoutez ici vos requêtes personnalisées si nécessaire
+    public function getRandomProduct() {
+        $query = $this->getEntityManager()
+            ->createQuery('SELECT p FROM App\Entity\Product p ORDER BY RAND()')
+            ->setMaxResults(1);
+
+        return $query->getOneOrNullResult();
+    }
 }

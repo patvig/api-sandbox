@@ -32,9 +32,9 @@ final class ProductAttributeFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'name' => self::faker()->text(255),
+            'name' => self::faker()->text(16),
             'product' => ProductFactory::new(),
-            'value' => self::faker()->text(255),
+            'value' => self::faker()->text(8),
         ];
     }
 
