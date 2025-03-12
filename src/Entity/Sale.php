@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 use App\Repository\SaleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -11,11 +12,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: SaleRepository::class)]
-#[ApiResource(
-    security: "is_granted('ROLE_USER')",
-    normalizationContext: ['groups' => ['read']],
-    denormalizationContext: ['groups' => ['write']],
-)]
+#[ApiResource()]
 class Sale
 {
     #[ORM\Id]
@@ -47,10 +44,25 @@ class Sale
 
     #[ORM\OneToMany(mappedBy: 'sale', targetEntity: ProductSale::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
     #[MaxDepth(2)]
-    #[Groups(["read", "write"])]
+    #[Groups(["write"])]
     private $productSales;
 
-    function __construct() {
+    #[Groups(['read'])]
+    #[SerializedName("productSales")]
+    public function getDisplayProductSales(): ?Collection
+    {
+        return $this->getProductSales();
+    }
+
+    #[Groups(['read'])]
+    #[SerializedName("clientName")]
+    public function getClientName(): ?string
+    {
+        return $this->getClient()->getNom();
+    }
+
+    function __construct()
+    {
         $this->productSales = new ArrayCollection();
     }
 
@@ -148,7 +160,7 @@ class Sale
     /**
      * Get the value of client
      */
-    public function getClient()
+    public function getClient(): ?Client
     {
         return $this->client;
     }

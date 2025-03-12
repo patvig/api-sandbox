@@ -6,6 +6,7 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 use App\Repository\ProductSaleRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -35,6 +36,13 @@ class ProductSale
     #[ORM\Column(type: 'float')]
     #[Groups(["read", "write"])]
     private $prixHT;
+
+    #[Groups(['read'])]
+    #[SerializedName("productName")]
+    public function getProductName(): ?string
+    {
+        return $this->getProduct()->getName();
+    }
 
     public function __construct(Sale $sale)
     {
