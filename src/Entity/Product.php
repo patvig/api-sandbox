@@ -42,6 +42,10 @@ class Product
     #[Groups(['product:read'])]
     private Collection $attributes;
 
+    #[ORM\Column(type: 'float')]
+    #[Groups(["product:read"])]
+    private $prixHT;
+
     #[Groups(['product:read'])]
     #[SerializedName("categoryName")]
     public function getCategoryName(): ?string
@@ -112,6 +116,19 @@ class Product
         if ($this->attributes->contains($attribute)) {
             $this->attributes->removeElement($attribute);
         }
+
+        return $this;
+    }
+
+
+    public function getPrixHT()
+    {
+        return $this->prixHT;
+    }
+
+    public function setPrixHT($prixHT): self
+    {
+        $this->prixHT = $prixHT;
 
         return $this;
     }

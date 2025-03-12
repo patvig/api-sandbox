@@ -35,6 +35,7 @@ final class ProductFactory extends PersistentProxyObjectFactory
             'category' => ProductCategoryFactory::new(),
             'name' => self::faker()->text(30),
             'type' => ProductTypeFactory::new(),
+            'prixHT' => self::faker()->randomFloat(2, 1, 1000)
         ];
     }
 
